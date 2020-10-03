@@ -12,7 +12,7 @@ import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 
 import Link from "../../Link";
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(theme => ({
   btn: {
     cursor: "pointer",
   },
@@ -40,7 +40,7 @@ const BigScreenButtonGroup = ({ isAuthenticated, firstName, logout }) => {
   const classes = useStyles();
   const [anchorEl, setAnchorEl] = React.useState(null);
 
-  const handleClick = (event) => {
+  const handleClick = event => {
     setAnchorEl(event.currentTarget);
   };
 
@@ -80,6 +80,7 @@ const BigScreenButtonGroup = ({ isAuthenticated, firstName, logout }) => {
             variant="outlined"
             aria-controls="simple-menu-233"
             aria-haspopup="true"
+            size="small"
             onClick={handleClick}
           >
             {firstName}

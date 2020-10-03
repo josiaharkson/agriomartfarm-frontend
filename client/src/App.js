@@ -9,11 +9,13 @@ import { authorizeUser, logout } from "./store/actions/authActions";
 
 // HOC
 import PrivateRouteWrapper from "./components/HOC/PrivateRouteWrapper";
+import PublicRouteWrapper from "./components/HOC/PublicRouteWrapper";
 
 function LoadPageComponent(name) {
   const Component = React.lazy(() => import(`./pages/${name}`));
   return Component;
 }
+console.log(process.env);
 
 function App(props) {
   const [loadingUser, setLoadingUser] = React.useState(true);
@@ -60,15 +62,19 @@ function App(props) {
           </Route>
 
           <Route path="/login">
-            <Suspense fallback={<IsLoading />}>
-              <Login />
-            </Suspense>
+            <PublicRouteWrapper>
+              <Suspense fallback={<IsLoading />}>
+                <Login />
+              </Suspense>
+            </PublicRouteWrapper>
           </Route>
 
           <Route path="/signup">
-            <Suspense fallback={<IsLoading />}>
-              <Register />
-            </Suspense>
+            <PublicRouteWrapper>
+              <Suspense fallback={<IsLoading />}>
+                <Register />
+              </Suspense>
+            </PublicRouteWrapper>
           </Route>
 
           <Route path="/dashboard">

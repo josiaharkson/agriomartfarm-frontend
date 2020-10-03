@@ -15,13 +15,13 @@ import Typography from "@material-ui/core/Typography";
 import { makeStyles } from "@material-ui/core/styles";
 import Container from "@material-ui/core/Container";
 import Card from "@material-ui/core/Card";
-import CardActions from "@material-ui/core/CardActions";
 import CardContent from "@material-ui/core/CardContent";
 import Breadcrumbs from "@material-ui/core/Breadcrumbs";
 import HomeIcon from "@material-ui/icons/Home";
 import IconButton from "@material-ui/core/IconButton";
 import Zoom from "@material-ui/core/Zoom";
 import useMediaQuery from "@material-ui/core/useMediaQuery";
+import Slide from "@material-ui/core/Slide";
 import { useTheme } from "@material-ui/core/styles";
 
 // Customized Components
@@ -105,6 +105,7 @@ const useStyles = makeStyles(theme => ({
     flexDirection: "row",
   },
   card: {
+    cursor: "pointer",
     minWidth: 150,
     margin: 20,
     textAlign: "center",
@@ -159,8 +160,13 @@ const MyCard = props => {
       style={{
         transitionDelay: checked ? zoom : "0ms",
       }}
+      timeout={1300}
     >
-      <Card elevation={10} className={classes.card}>
+      <Card
+        elevation={10}
+        className={classes.card}
+        onClick={() => setView(type.toLowerCase())}
+      >
         <CardContent>
           <Typography
             className={classes.title}
@@ -174,19 +180,6 @@ const MyCard = props => {
             {type}
           </Typography>
         </CardContent>
-        <CardActions>
-          <Button
-            style={{
-              textAlign: "center",
-              width: "100%",
-              color: "white",
-            }}
-            size="small"
-            onClick={() => setView(type.toLowerCase())}
-          >
-            here
-          </Button>
-        </CardActions>
       </Card>
     </Zoom>
   );
@@ -201,6 +194,7 @@ const MyCardSm = props => {
       style={{
         transitionDelay: checked ? zoom : "0ms",
       }}
+      timeout={1300}
     >
       <Button
         style={{
@@ -277,7 +271,15 @@ function Register(props) {
       userType,
     };
 
-    // return setIsLoading(false);
+    if (body.password !== body.conPassword) {
+      setMsg(`Passwords do not match`);
+      setMsgType("error");
+      setSnackBarOpen(true);
+      return setIsLoading(false);
+    }
+
+    // Delete the conPassword key
+    delete body.conPassword;
 
     try {
       const KEYS = config();
@@ -317,80 +319,102 @@ function Register(props) {
     <div className={classes.root}>
       {redirecting && <IsLoadingComp iconSize={50} />}
       <div className={classes.halfImg}> </div>
-      <Container component="main" maxWidth="lg" className={classes.container}>
-        {SnackBarOpen && (
-          <SnackBar
-            message={msg}
-            handleClose={() => setSnackBarOpen(false)}
-            type={msgType}
-          />
-        )}
 
-        <div className={classes.paper}>
-          <Grid container spacing={1}>
-            <Grid item xs={12} sm={12}>
-              {view === "first" ? (
-                <Breadcrumbs separator="›" aria-label="breadcrumb">
-                  <IconButton>
-                    <Link
-                      to="/"
-                      title={<HomeIcon />}
+      <Slide
+        direction="left"
+        in={true}
+        mountOnEnter
+        unmountOnExit
+        timeout={1000}
+      >
+        <Container component="main" maxWidth="lg" className={classes.container}>
+          {SnackBarOpen && (
+            <SnackBar
+              message={msg}
+              handleClose={() => setSnackBarOpen(false)}
+              type={msgType}
+            />
+          )}
+
+          <div className={classes.paper}>
+            <Grid container spacing={1}>
+              <Grid item xs={12} sm={12}>
+                {view === "first" ? (
+                  <Breadcrumbs separator="›" aria-label="breadcrumb">
+                    <IconButton>
+                      <Link
+                        to="/"
+                        title={<HomeIcon />}
+                        style={{
+                          color: "#556cd6",
+                        }}
+                      />
+                    </IconButton>
+                    <Button disabled>Register</Button>
+                  </Breadcrumbs>
+                ) : (
+                  <Breadcrumbs separator="›" aria-label="breadcrumb">
+                    <IconButton>
+                      <Link
+                        to="/"
+                        title={<HomeIcon />}
+                        style={{
+                          color: "#556cd6",
+                        }}
+                      />
+                    </IconButton>
+                    <Button
+                      onClick={() => setView("first")}
                       style={{
                         color: "#556cd6",
                       }}
-                    />
-                  </IconButton>
-                  <Button disabled>Register</Button>
-                </Breadcrumbs>
-              ) : (
-                <Breadcrumbs separator="›" aria-label="breadcrumb">
-                  <IconButton>
-                    <Link
-                      to="/"
-                      title={<HomeIcon />}
-                      style={{
-                        color: "#556cd6",
-                      }}
-                    />
-                  </IconButton>
-                  <Button
-                    onClick={() => setView("first")}
-                    style={{
-                      color: "#556cd6",
-                    }}
-                  >
-                    Register
-                  </Button>
-                  <Button disabled>{view}</Button>
-                </Breadcrumbs>
-              )}
+                    >
+                      Register
+                    </Button>
+                    <Button disabled>{view}</Button>
+                  </Breadcrumbs>
+                )}
+              </Grid>
             </Grid>
-          </Grid>
 
-          <Avatar className={classes.avatar}>
-            <LockOutlinedIcon />
-          </Avatar>
-          <Typography component="h1" variant="h4" className={classes.title2}>
-            {view === "first" && "Registration"}
-            {view === "farmer" && "Farmer Register"}
-            {view === "consumer" && "Consumer Register"}
-            {view === "retailer" && "Retailer Register"}
-          </Typography>
+            <Avatar className={classes.avatar}>
+              <LockOutlinedIcon />
+            </Avatar>
+            <Typography component="h1" variant="h4" className={classes.title2}>
+              {view === "first" && "Registration"}
+              {view === "farmer" && "Farmer Register"}
+              {view === "consumer" && "Consumer Register"}
+              {view === "retailer" && "Retailer Register"}
+            </Typography>
 
-          {view === "first" && (
-            <>
-              <div>
-                <Typography className={classes.intro}>
-                  Join, Buy, Sell, Invest, and Make Profit Now!
-                </Typography>
-                {matches ? (
-                  <>
-                    <Typography className={classes.regas}>
-                      Register as
-                    </Typography>
-                    <div className={classes.mycards_sm}>
+            {view === "first" && (
+              <>
+                <div>
+                  <Typography className={classes.intro}>
+                    Join, Buy, Sell, Invest, and Make Profit Now!
+                  </Typography>
+                  {matches ? (
+                    <>
+                      <Typography className={classes.regas}>
+                        Register as
+                      </Typography>
+                      <div className={classes.mycards_sm}>
+                        {items.map(item => (
+                          <MyCardSm
+                            checked={true}
+                            key={item.id}
+                            zoom={item.zoom}
+                            classes={classes}
+                            setView={setView}
+                            type={item.type}
+                          />
+                        ))}
+                      </div>
+                    </>
+                  ) : (
+                    <div className={classes.mycards}>
                       {items.map(item => (
-                        <MyCardSm
+                        <MyCard
                           checked={true}
                           key={item.id}
                           zoom={item.zoom}
@@ -400,62 +424,49 @@ function Register(props) {
                         />
                       ))}
                     </div>
-                  </>
-                ) : (
-                  <div className={classes.mycards}>
-                    {items.map(item => (
-                      <MyCard
-                        checked={true}
-                        key={item.id}
-                        zoom={item.zoom}
-                        classes={classes}
-                        setView={setView}
-                        type={item.type}
-                      />
-                    ))}
-                  </div>
-                )}
-              </div>
-            </>
-          )}
+                  )}
+                </div>
+              </>
+            )}
 
-          {view === "farmer" && (
-            <RegComponent
-              type="Farmer"
-              isLoading={isLoading}
-              onSubmitForm={onSubmit}
-              setView={setView}
-              reset={reset}
-              setReset={setReset}
-            />
-          )}
+            {view === "farmer" && (
+              <RegComponent
+                type="Farmer"
+                isLoading={isLoading}
+                onSubmitForm={onSubmit}
+                setView={setView}
+                reset={reset}
+                setReset={setReset}
+              />
+            )}
 
-          {view === "consumer" && (
-            <RegComponent
-              type="Consumer"
-              isLoading={isLoading}
-              onSubmitForm={onSubmit}
-              setView={setView}
-              reset={reset}
-              setReset={setReset}
-            />
-          )}
+            {view === "consumer" && (
+              <RegComponent
+                type="Consumer"
+                isLoading={isLoading}
+                onSubmitForm={onSubmit}
+                setView={setView}
+                reset={reset}
+                setReset={setReset}
+              />
+            )}
 
-          {view === "retailer" && (
-            <RegComponent
-              type="Retailer"
-              isLoading={isLoading}
-              onSubmitForm={onSubmit}
-              setView={setView}
-              reset={reset}
-              setReset={setReset}
-            />
-          )}
-        </div>
-        <Box mt={8}>
-          <Copyright />
-        </Box>
-      </Container>
+            {view === "retailer" && (
+              <RegComponent
+                type="Retailer"
+                isLoading={isLoading}
+                onSubmitForm={onSubmit}
+                setView={setView}
+                reset={reset}
+                setReset={setReset}
+              />
+            )}
+          </div>
+          <Box mt={8}>
+            <Copyright />
+          </Box>
+        </Container>
+      </Slide>
     </div>
   );
 }

@@ -157,9 +157,25 @@ const Home = props => {
 
   return (
     <div className={classes.root}>
-      <AppBar />
+      <Slide
+        direction="left"
+        in={true}
+        mountOnEnter
+        unmountOnExit
+        timeout={1000}
+      >
+        <div>
+          <AppBar />
+        </div>
+      </Slide>
       <div className={classes.header}>
-        <Slide direction="right" in={true} mountOnEnter unmountOnExit>
+        <Slide
+          direction="right"
+          in={true}
+          mountOnEnter
+          unmountOnExit
+          timeout={1000}
+        >
           <Box className={classes.headerTextWrapper}>
             <Typography className={classes.headerText} align="left">
               Welcome to Agromart
@@ -180,7 +196,7 @@ const Home = props => {
           </Box>
         </Slide>
         <Box className={classes.headerimgWrapper}>
-          <Zoom in={true} style={{ transitionDelay: "300ms" }}>
+          <Zoom in={true} style={{ transitionDelay: "500ms" }} timeout={1100}>
             <img
               src="./svg/header.svg"
               className={classes.headerimg}

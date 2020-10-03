@@ -14,7 +14,7 @@ import { logout } from "../../../store/actions/authActions";
 import BigScreenButtonGroup from "./BigScreenButtonGroup";
 import SmallScreenButtonGroup from "./SmallScreenButtonGroup";
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(theme => ({
   root: {
     flexGrow: 1,
   },
@@ -55,12 +55,23 @@ function ElevationScroll(props) {
       style: { color: "#FFF", background: "rgba(18, 107, 22, 0.8)" },
     });
 
+  if (props.white) {
+    return React.cloneElement(children, {
+      elevation: trigger ? 4 : 0,
+
+      style: trigger
+        ? { color: "#FFF", background: "rgba(18, 107, 22, 0.88)" }
+        : { color: "#FFF", background: "#ffffff00" },
+      // color: trigger ? "secondary" : "transparent",
+    });
+  }
+
   return React.cloneElement(children, {
     elevation: trigger ? 4 : 0,
 
     style: trigger
       ? { color: "#FFF", background: "rgba(18, 107, 22, 0.88)" }
-      : { color: "#000000DE", background: "#ffffff0d" },
+      : { color: "#000000DE", background: "#ffffff00" },
     // color: trigger ? "secondary" : "transparent",
   });
 }
@@ -74,11 +85,11 @@ ElevationScroll.propTypes = {
   window: PropTypes.func,
 };
 
-const ElevateAppBar = (props) => {
+const ElevateAppBar = props => {
   const classes = useStyles();
   const { isAuthenticated, user } = props;
 
-  const firstName = user.fullName ? user.fullName.split("")[0] : "";
+  const firstName = user.fullName ? user.fullName.split(" ")[0] : "";
 
   return (
     <React.Fragment>
@@ -108,7 +119,7 @@ const ElevateAppBar = (props) => {
   );
 };
 
-const mapStateToProps = (state) => ({
+const mapStateToProps = state => ({
   isAuthenticated: state.auth.isAuthenticated,
   user: state.auth.user,
 });

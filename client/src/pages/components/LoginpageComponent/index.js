@@ -32,7 +32,7 @@ import { authorizeUser } from "../../../store/actions/authActions";
 import config from "../../../utils/config";
 
 // Material UI Styling
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(theme => ({
   root: {
     display: "flex",
     flex: 1,
@@ -106,7 +106,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const Login = (props) => {
+const Login = props => {
   const classes = useStyles();
   let history = useHistory();
 
@@ -120,7 +120,7 @@ const Login = (props) => {
   const [redirecting, setRedirecting] = React.useState(false);
 
   // Function is called to submit form
-  const onSubmitForm = async (data) => {
+  const onSubmitForm = async data => {
     setIsLoading(true);
 
     // MAKE LOGIN REQUEST TO BACKEND USING AXIOS
@@ -162,58 +162,67 @@ const Login = (props) => {
   };
 
   return (
-    <div className={classes.root}>
-      {redirecting && <IsLoadingComp iconSize={50} />}
-      <Slide direction="right" in={true} mountOnEnter unmountOnExit>
-        <Container
-          component="main"
-          maxWidth="lg"
-          className={classes.container1}
-        >
-          {SnackBarOpen && (
-            <SnackBar
-              autoHideDuration={10000}
-              message={msg}
-              handleClose={() => setSnackBarOpen(false)}
-              type={msgType}
-            />
-          )}
-          <div className={classes.paper}>
-            <Grid container spacing={1}>
-              <Grid item xs={12} sm={12}>
-                <Breadcrumbs separator="›" aria-label="breadcrumb">
-                  <IconButton>
-                    <Link
-                      to="/"
-                      title={<HomeIcon />}
-                      style={{ color: "#556cd6" }}
-                    />
-                  </IconButton>
-                  <Button disabled>Login</Button>
-                </Breadcrumbs>
-              </Grid>
-            </Grid>
+    <>
+      <div className={classes.root}>
+        {redirecting && <IsLoadingComp iconSize={50} />}
 
-            <Avatar className={classes.avatar}>
-              <LockOutlinedIcon />
-            </Avatar>
-            <Typography component="h1" variant="h5">
-              Login
-            </Typography>
-            <LoginComponent
-              onSubmitForm={onSubmitForm}
-              reset={reset}
-              setReset={setReset}
-              isLoading={isLoading}
-            />
-          </div>
-          <Box mt={8}>
-            <Copyright />
-          </Box>
-        </Container>
-      </Slide>
-      <div className={classes.container2}> </div>
-    </div>
+        <Slide
+          direction="right"
+          in={true}
+          mountOnEnter
+          unmountOnExit
+          timeout={1000}
+        >
+          <Container
+            component="main"
+            maxWidth="lg"
+            className={classes.container1}
+          >
+            {SnackBarOpen && (
+              <SnackBar
+                autoHideDuration={10000}
+                message={msg}
+                handleClose={() => setSnackBarOpen(false)}
+                type={msgType}
+              />
+            )}
+            <div className={classes.paper}>
+              <Grid container spacing={1}>
+                <Grid item xs={12} sm={12}>
+                  <Breadcrumbs separator="›" aria-label="breadcrumb">
+                    <IconButton>
+                      <Link
+                        to="/"
+                        title={<HomeIcon />}
+                        style={{ color: "#556cd6" }}
+                      />
+                    </IconButton>
+                    <Button disabled>Login</Button>
+                  </Breadcrumbs>
+                </Grid>
+              </Grid>
+
+              <Avatar className={classes.avatar}>
+                <LockOutlinedIcon />
+              </Avatar>
+              <Typography component="h1" variant="h5">
+                Login
+              </Typography>
+              <LoginComponent
+                onSubmitForm={onSubmitForm}
+                reset={reset}
+                setReset={setReset}
+                isLoading={isLoading}
+              />
+            </div>
+            <Box mt={8}>
+              <Copyright />
+            </Box>
+          </Container>
+        </Slide>
+        <div className={classes.container2}> </div>
+      </div>
+    </>
   );
 };
 
