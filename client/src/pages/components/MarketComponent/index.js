@@ -2,6 +2,7 @@ import React from "react";
 import { withRouter } from "react-router-dom";
 // Material UI Components
 
+import { connect } from "react-redux";
 import Box from "@material-ui/core/Box";
 
 import { makeStyles } from "@material-ui/core/styles";
@@ -13,8 +14,15 @@ import Copyright from "../../../components/Copyright";
 import TabBar from "./TabBar";
 import GridList from "./GridList";
 
+import useRequest from "../../../utils/useRequest";
+import authHeader from "../../../utils/auth-header";
+import { InlineLoader } from "../../../components/IsLoading";
+
+import config from "../../../utils/config";
+const KEYS = config();
+
 // Material UI Styling
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(theme => ({
   root: {
     display: "flex",
     flex: 1,
@@ -34,14 +42,29 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function Market() {
+function Market(props) {
   const classes = useStyles();
+  const { user } = props;
+  const { token } = user;
+
+  // GET ALL PRODUCTS
+  const url = KEYS.API_URL + "/api/product/getall";
+
+  const { data, isValidating } = useRequest({
+    url,
+    headers: authHeader(token),
+  });
 
   return (
     <div className={classes.root}>
       <Container component="main" maxWidth="lg" className={classes.container}>
         <TabBar />
-        <GridList />
+        {isValidating ? (
+          <InlineLoader />
+        ) : (
+          <>{data ? <GridList data={data.response} /> : <InlineLoader />}</>
+        )}
+
         <Box mt={8}>
           <Copyright />
         </Box>
@@ -50,4 +73,8 @@ function Market() {
   );
 }
 
-export default withRouter(Market);
+const mapStateToProps = state => ({
+  user: state.auth.user,
+});
+
+export default connect(mapStateToProps)(withRouter(Market));

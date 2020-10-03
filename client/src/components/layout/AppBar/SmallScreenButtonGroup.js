@@ -10,11 +10,11 @@ import Fade from "@material-ui/core/Fade";
 import AccountCircleIcon from "@material-ui/icons/AccountCircle";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import IconButton from "@material-ui/core/IconButton";
-import MenuIcon from "@material-ui/icons/Menu";
+import MenuIcon from "@material-ui/icons/MoreVert";
 
 import Link from "../../Link";
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(theme => ({
   btn: {
     cursor: "pointer",
   },
@@ -25,10 +25,13 @@ const useStyles = makeStyles((theme) => ({
 
   menuButton: {
     marginRight: theme.spacing(5),
+    [theme.breakpoints.down("sm")]: {
+      marginRight: theme.spacing(2),
+    },
   },
 
   smallScreen: {
-    [theme.breakpoints.up("md")]: {
+    [theme.breakpoints.up("sm")]: {
       display: "none",
     },
   },
@@ -61,9 +64,13 @@ const DropDown = ({
       onClose={handleClose}
       TransitionComponent={Fade}
     >
-      <MenuItem onClick={handleClose}>Home</MenuItem>
+      <MenuItem>
+        <Link to="/" title="Home" />
+      </MenuItem>
       <MenuItem onClick={handleClose}>Categories</MenuItem>
-      <MenuItem onClick={handleClose}>Market / Mart</MenuItem>
+      <MenuItem>
+        <Link to="/market" title="Market / Mart" />
+      </MenuItem>
       <MenuItem onClick={handleClose}>Contacts</MenuItem>
       {isAuthenticated && (
         <MenuItem>
@@ -96,7 +103,7 @@ const SmallScreenButtonGroup = ({ isAuthenticated, firstName, logout }) => {
   const classes = useStyles();
   const [anchorEl, setAnchorEl] = React.useState(null);
 
-  const handleClick = (event) => {
+  const handleClick = event => {
     setAnchorEl(event.currentTarget);
   };
 
@@ -127,7 +134,7 @@ const SmallScreenButtonGroup = ({ isAuthenticated, firstName, logout }) => {
         </Button>
       ) : (
         <IconButton
-          edge="start"
+          edge="end"
           className={clsx(classes.menuButton, classes.smallScreen)}
           color="inherit"
           aria-label="menu"

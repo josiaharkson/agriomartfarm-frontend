@@ -77,6 +77,7 @@ const ConsumerReg = props => {
       lastName: lastName.trim(),
       email: email.trim(),
       password: password.trim(),
+      conPassword: conPassword.trim(),
     };
     onSubmitForm(data, type.toLowerCase());
   };
