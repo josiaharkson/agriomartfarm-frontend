@@ -27,9 +27,7 @@ const useStyles = makeStyles(theme => ({
     display: "flex",
     flex: 1,
     flexDirection: "row",
-    [theme.breakpoints.down("sm")]: {
-      display: "block",
-    },
+    [theme.breakpoints.down("sm")]: {},
   },
 
   container: {
@@ -37,7 +35,6 @@ const useStyles = makeStyles(theme => ({
     width: "50%",
     [theme.breakpoints.down("sm")]: {
       width: "100%",
-      marginTop: -50,
     },
   },
 }));
@@ -54,11 +51,16 @@ function Market(props) {
     url,
     headers: authHeader(token),
   });
+  let number = 0;
+
+  if (data) {
+    if (data.response) number = data.response.length;
+  }
 
   return (
     <div className={classes.root}>
-      <Container component="main" maxWidth="lg" className={classes.container}>
-        <TabBar />
+      <Container component="div" maxWidth="lg" className={classes.container}>
+        <TabBar number={number} />
         {isValidating ? (
           <InlineLoader />
         ) : (

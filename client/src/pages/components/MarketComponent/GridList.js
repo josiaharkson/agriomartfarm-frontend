@@ -3,12 +3,13 @@ import { makeStyles } from "@material-ui/core/styles";
 import Typography from "@material-ui/core/Typography";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import Button from "@material-ui/core/Button";
-import Paper from "@material-ui/core/Paper";
 import Grid from "@material-ui/core/Grid";
 
 import useRequest from "../../../utils/useRequest";
 
 import config from "../../../utils/config";
+import "./singleProductStyle.css";
+
 const KEYS = config();
 
 const useStyles = makeStyles(theme => ({
@@ -41,49 +42,63 @@ const useStyles = makeStyles(theme => ({
     justifyContent: "flex-end",
     fontSize: 14,
     textAlign: "center",
+
+    [theme.breakpoints.down("sm")]: {
+      fontSize: 9,
+    },
   },
-  btn: { height: 30, margin: "0 5px", fontSize: 12, marginBottom: 10 },
+  btn: {
+    height: 27,
+    margin: "3px 5px",
+    fontSize: 9,
+    marginBottom: 10,
+  },
 
   prodDetails: {
     display: "flex",
     flex: 1,
     flexDirection: "column",
     justifyContent: "space-between",
-    color: "gray",
+    color: "black",
     fontSize: 12,
     margin: "10px 5px",
     textAlign: "center",
   },
+
+  grid: {
+    marginTop: 20,
+    [theme.breakpoints.down("sm")]: {
+      marginTop: 10,
+    },
+  },
+
+  items_style: {
+    fontSize: 12,
+    fontFamily: "monospace",
+    color: "green",
+
+    "&>b": {
+      color: "#b31d1d",
+      fontFamily: "inherit",
+    },
+  },
+
+  items_style_farm: {
+    fontSize: 12,
+    fontFamily: "monospace",
+    whiteSpace: "nowrap",
+    width: "100%",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    color: "gray",
+    padding: "0px 5px",
+    paddingLeft: 15,
+    paddingBottom: 15,
+    marginTop: -10,
+    textAlign: "left",
+  },
 }));
 
-// const tileData = [
-// 	{
-// 		img: "/img/sample.jpg",
-// 		title: "",
-// 		author: "Product Details",
-// 		cols: 2,
-// 	},
-// 	{
-// 		img: "/img/sample.jpg",
-// 		title: "",
-// 		author: "Product Details",
-// 		cols: 1,
-// 	},
-
-// 	{
-// 		img: "/img/sample.jpg",
-// 		title: "",
-// 		author: "Product Details",
-// 		cols: 1,
-// 	},
-
-// 	{
-// 		img: "/img/sample.jpg",
-// 		title: "",
-// 		author: "Product Details",
-// 		cols: 1,
-// 	},
-// ];
 export default function TitlebarGridList(props) {
   const classes = useStyles();
   const { data } = props;
@@ -94,7 +109,7 @@ export default function TitlebarGridList(props) {
       {!data.length ? (
         <div>No Product Has Been Added To The Database</div>
       ) : (
-        <Grid container spacing={4} style={{ padding: 20 }}>
+        <Grid container spacing={3} style={{ padding: 20 }}>
           {data.map(item => (
             <SingleProductBox item={item} key={Math.random()} />
           ))}
@@ -107,6 +122,9 @@ export default function TitlebarGridList(props) {
 const SingleProductBox = ({ item }) => {
   const classes = useStyles();
 
+  const { pic } = item;
+  const [imgData, setImgData] = React.useState("/img/singleProductDefault.jpg");
+
   const url = KEYS.API_URL + "/api/product/stats/" + item._id;
   const url2 = KEYS.API_URL + "/api/farm/get/" + item.farm;
 
@@ -117,13 +135,46 @@ const SingleProductBox = ({ item }) => {
     url: url2,
   });
 
+  React.useEffect(() => {
+    if (pic) {
+      //convert image file to base64-encoded string
+      let base64Image = Buffer.from(pic.data, "binary").toString("base64");
+
+      //combine all strings
+      let imgSrcString = `data:${pic.contentType};base64,${base64Image}`;
+      setImgData(imgSrcString);
+    }
+  }, [pic]);
+
   return (
-    <Grid item xs={3} style={{ marginTop: 20 }}>
-      <Paper className={classes.paper} elevation={10}>
-        <div>
-          <Typography style={{ textTransform: "capitalize" }}>
-            {item.name}
-          </Typography>
+    <div className="responsive">
+      <div className="gallery">
+        <img src={imgData} alt="Cinque Terre" width="600" height="400" />
+        <div className="desc">
+          <div>
+            <Typography
+              style={{
+                textTransform: "capitalize",
+                whiteSpace: "nowrap",
+                width: "100%",
+                overflow: "hidden",
+                fontSize: 12,
+                textOverflow: "ellipsis",
+              }}
+            >
+              {item.name}
+            </Typography>
+
+            <Button
+              className={classes.btn}
+              variant="outlined"
+              color="secondary"
+              size="small"
+            >
+              open product
+            </Button>
+          </div>
+
           <div className={classes.prodDetails}>
             {error ? (
               <>GET error!</>
@@ -135,11 +186,12 @@ const SingleProductBox = ({ item }) => {
                   <>
                     {data ? (
                       <>
-                        <span> Quantity: {data.response.quantity}</span>
-                        <span> Price: {data.response.sold}</span>
-                        {farm && farm.response && farm.response.name && (
-                          <span>Farm: {farm.response.name}</span>
-                        )}
+                        <Typography className={classes.items_style}>
+                          <b>Quantity</b>: {data.response.quantity}
+                        </Typography>
+                        <Typography className={classes.items_style}>
+                          <b>Price</b>: {data.response.sold}
+                        </Typography>
                       </>
                     ) : null}
                   </>
@@ -148,11 +200,12 @@ const SingleProductBox = ({ item }) => {
             )}
           </div>
         </div>
-
-        <Button className={classes.btn} variant="contained" color="default">
-          open product
-        </Button>
-      </Paper>
-    </Grid>
+        {farm && farm.response && farm.response.name && (
+          <Typography className={classes.items_style_farm}>
+            Available @ {farm.response.name}dddddddddddddddddddddddddddddd
+          </Typography>
+        )}
+      </div>
+    </div>
   );
 };
