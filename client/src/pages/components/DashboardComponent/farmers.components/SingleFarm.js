@@ -10,7 +10,6 @@ import IconButton from "@material-ui/core/IconButton";
 import Typography from "@material-ui/core/Typography";
 import CloseIcon from "@material-ui/icons/Close";
 import Slide from "@material-ui/core/Slide";
-import Paper from "@material-ui/core/Paper";
 import Grid from "@material-ui/core/Grid";
 import TextField from "@material-ui/core/TextField";
 import Dialog from "@material-ui/core/Dialog";
@@ -18,6 +17,9 @@ import DialogActions from "@material-ui/core/DialogActions";
 import DialogContent from "@material-ui/core/DialogContent";
 import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogTitle from "@material-ui/core/DialogTitle";
+import PhotoCamera from "@material-ui/icons/PhotoCamera";
+import InputAdornment from "@material-ui/core/InputAdornment";
+import DeleteIcon from "@material-ui/icons/Delete";
 
 import useRequest from "../../../../utils/useRequest";
 import authHeader from "../../../../utils/auth-header";
@@ -25,6 +27,8 @@ import { InlineLoader } from "../../../../components/IsLoading";
 import SnackBar from "../../../../components/SnackBar";
 
 import config from "../../../../utils/config";
+import "./singleProductStyle.css";
+
 const KEYS = config();
 
 const useStyles = makeStyles(theme => ({
@@ -36,11 +40,36 @@ const useStyles = makeStyles(theme => ({
   title: {
     marginLeft: theme.spacing(2),
     flex: 1,
+    "&::before": {
+      content: '"My Farm - "',
+    },
+
+    [theme.breakpoints.down("sm")]: {
+      fontSize: 13,
+      marginLeft: 5,
+      "&::before": {
+        content: '""',
+      },
+    },
   },
   body: {
-    padding: theme.spacing(6),
+    marginTop: -20,
+    [theme.breakpoints.down("sm")]: {
+      marginTop: -30,
+    },
   },
-  btn: { height: 30, margin: "0 5px", fontSize: 12, marginBottom: 10 },
+  bodyContent: {
+    padding: theme.spacing(2, 6),
+    [theme.breakpoints.down("sm")]: {
+      padding: theme.spacing(2),
+    },
+  },
+  btn: {
+    height: 27,
+    margin: "3px 5px",
+    fontSize: 9,
+    marginBottom: 10,
+  },
   message: { fontSize: 30, textAlign: "center", margimBottom: 30 },
   span: { color: "gray", textAlign: "left", fontSize: 14 },
   paper: {
@@ -52,6 +81,9 @@ const useStyles = makeStyles(theme => ({
     alignItems: "center",
     justifyContent: "flex-end",
     fontSize: 14,
+    [theme.breakpoints.down("sm")]: {
+      fontSize: 9,
+    },
     textAlign: "center",
   },
   prodDetails: {
@@ -64,6 +96,40 @@ const useStyles = makeStyles(theme => ({
     margin: "10px 5px",
     textAlign: "center",
   },
+  bodyImg: {
+    // backgroundPosition: "right bottom, left top",
+    zIndex: 10,
+    backgroundRepeat: "no-repeat",
+    backgroundSize: "cover",
+    width: "100%",
+    height: 400,
+    backgroundPosition: "center",
+    // filter: "blur(1px)",
+    boxShadow:
+      "0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)",
+    [theme.breakpoints.down("sm")]: {
+      height: 270,
+    },
+  },
+
+  items_style: {
+    fontSize: 12,
+    fontFamily: "monospace",
+    color: "green",
+
+    "&>b": {
+      color: "#b31d1d",
+      fontFamily: "inherit",
+    },
+  },
+
+  my_btns: {
+    display: "flex",
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+  },
 }));
 
 const Transition = React.forwardRef(function Transition(props, ref) {
@@ -73,10 +139,12 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 export default function FullScreenDialog({
   farmId,
   farmName,
+  farmPic,
   handleClose,
   token,
 }) {
   const classes = useStyles();
+  const [imgData, setImgData] = React.useState("/img/defaultSingleFarm2.jpg");
 
   // GET All products for this farm
   const url = KEYS.API_URL + "/api/product/" + farmId;
@@ -103,6 +171,17 @@ export default function FullScreenDialog({
   const handleCloseDialog = () => {
     setOpen(false);
   };
+
+  React.useEffect(() => {
+    if (farmPic) {
+      //convert image file to base64-encoded string
+      let base64Image = Buffer.from(farmPic.data, "binary").toString("base64");
+
+      //combine all strings
+      let imgSrcString = `data:${farmPic.contentType};base64,${base64Image}`;
+      setImgData(imgSrcString);
+    }
+  }, [farmPic]);
 
   return (
     <div>
@@ -132,7 +211,7 @@ export default function FullScreenDialog({
               <CloseIcon />
             </IconButton>
             <Typography variant="h6" className={classes.title}>
-              My Farm - {farmName.toUpperCase()}
+              {farmName.toUpperCase()}
             </Typography>
             <Button autoFocus color="inherit" onClick={handleClose}>
               CLose
@@ -140,35 +219,45 @@ export default function FullScreenDialog({
           </Toolbar>
         </AppBar>
         <div className={classes.body}>
-          <h2>
-            All Products for this farm
-            <Badge
-              badgeContent={data ? data.response.length : "0"}
-              color="secondary"
-              style={{ margin: "0 15px" }}
-            />
-          </h2>
-          <Button
-            color="inherit"
-            variant="outlined"
-            onClick={handleClickOpenDialog}
-          >
-            Add A new Product
-          </Button>
+          <div
+            style={{ backgroundImage: `url("${imgData}")` }}
+            className={classes.bodyImg}
+          />
+          <div className={classes.bodyContent}>
+            <h2>
+              All Products for this farm
+              <Badge
+                badgeContent={data ? data.response.length : "0"}
+                color="secondary"
+                style={{ margin: "0 15px" }}
+              />
+            </h2>
+            <Button
+              color="inherit"
+              variant="outlined"
+              onClick={handleClickOpenDialog}
+            >
+              Add A new Product
+            </Button>
 
-          <DisplayData data={data} error={error} isValidating={isValidating} />
-          {open && (
-            <AddNewProductDialog
-              open={open}
-              farmId={farmId}
-              token={token}
-              handleClose={handleCloseDialog}
-              refresh={refresh}
-              setMsg={setMsg}
-              setMsgType={setMsgType}
-              setSnackBarOpen={setSnackBarOpen}
+            <DisplayData
+              data={data}
+              error={error}
+              isValidating={isValidating}
             />
-          )}
+            {open && (
+              <AddNewProductDialog
+                open={open}
+                farmId={farmId}
+                token={token}
+                handleClose={handleCloseDialog}
+                refresh={refresh}
+                setMsg={setMsg}
+                setMsgType={setMsgType}
+                setSnackBarOpen={setSnackBarOpen}
+              />
+            )}
+          </div>
         </div>
       </Dialog>
     </div>
@@ -177,6 +266,8 @@ export default function FullScreenDialog({
 
 const DisplayData = ({ data, error, isValidating }) => {
   const classes = useStyles();
+
+  const deleteFarm = id => console.log({ id });
 
   if (isValidating) return <InlineLoader />;
   if (error) return <div>An Error Occured!</div>;
@@ -196,11 +287,12 @@ const DisplayData = ({ data, error, isValidating }) => {
                 Click on an item to open product
               </span>
             </div>
-            <Grid container spacing={4}>
+            <Grid container spacing={2}>
               {data.response.map(product => (
                 <SingleProductBox
                   key={Math.random() + product.name}
                   product={product}
+                  deleteFarm={() => deleteFarm(product._id)}
                 />
               ))}
             </Grid>
@@ -229,23 +321,46 @@ const AddNewProductDialog = ({
   const [quantity, setQuantity] = React.useState("");
   const [sold, setSold] = React.useState("");
 
-  const createNewFarm = async () => {
-    if (!name.trim()) return;
+  const [file, setFile] = React.useState(null);
+
+  const onChangeFile = e => {
+    if (e.target.files[0]) {
+      const type = e.target.files[0].type;
+      if (type !== "image/png" && type !== "image/jpeg" && type !== "image/jpg")
+        return alert("Invalid Image file sected!");
+      setFile(e.target.files[0]);
+    }
+  };
+
+  const createNewProduct = async () => {
+    if (!name.trim()) {
+      console.log(443344);
+      setMsg("Form not Completed");
+      setMsgType("error");
+      setSnackBarOpen(true);
+
+      return;
+    }
 
     const url = KEYS.API_URL + "/api/product/add/" + farmId;
 
+    const formData = new FormData();
+    formData.append("image", file);
+    formData.append(
+      "data",
+      JSON.stringify({
+        name,
+        farm: farmId,
+        quantity,
+        sold,
+      })
+    );
+
     try {
-      const res = await axios.post(
-        url,
-        {
-          name,
-          farm: farmId,
-          quantity,
-          sold,
-        },
-        { headers: authHeader(token) }
-      );
-      console.log(res.data);
+      await axios.post(url, formData, {
+        headers: authHeader(token),
+        "Content-Type": "multipart/form-data",
+      });
       refresh();
       handleClose();
       setMsg("New Product Has been Created Successfully!");
@@ -258,8 +373,6 @@ const AddNewProductDialog = ({
           console.log(e.response.data);
         }
       }
-
-      console.log(e);
 
       setMsg("An Error Occured!");
       setMsgType("error");
@@ -311,12 +424,27 @@ const AddNewProductDialog = ({
             value={sold}
             onChange={e => setSold(e.target.value)}
           />
+
+          <TextField
+            label="Product Image"
+            type="file"
+            fullWidth
+            onChange={e => onChangeFile(e)}
+            inputProps={{
+              accept: "image/jpg, image/jpeg, image/png",
+              endadornment: (
+                <InputAdornment position="end">
+                  <PhotoCamera />
+                </InputAdornment>
+              ),
+            }}
+          />
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose} color="primary">
             Cancel
           </Button>
-          <Button onClick={() => createNewFarm()} color="primary">
+          <Button onClick={() => createNewProduct()} color="primary">
             Create New
           </Button>
         </DialogActions>
@@ -325,21 +453,67 @@ const AddNewProductDialog = ({
   );
 };
 
-const SingleProductBox = ({ product }) => {
+const SingleProductBox = ({ product, deleteFarm }) => {
   const classes = useStyles();
+
+  const { pic } = product;
+  const [imgData, setImgData] = React.useState("/img/singleProductDefault.jpg");
 
   const url = KEYS.API_URL + "/api/product/stats/" + product._id;
   const { data, error, isValidating } = useRequest({
     url,
   });
 
+  React.useEffect(() => {
+    if (pic) {
+      //convert image file to base64-encoded string
+      let base64Image = Buffer.from(pic.data, "binary").toString("base64");
+
+      //combine all strings
+      let imgSrcString = `data:${pic.contentType};base64,${base64Image}`;
+      setImgData(imgSrcString);
+    }
+  }, [pic]);
+
   return (
-    <Grid item xs={3} style={{ marginTop: 20 }}>
-      <Paper className={classes.paper} elevation={10}>
-        <div>
-          <Typography style={{ textTransform: "capitalize" }}>
-            {product.name}
-          </Typography>
+    <div className="responsive">
+      <div className="gallery">
+        <img src={imgData} alt="Cinque Terre" width="600" height="400" />
+        <div className="desc">
+          <div>
+            <Typography
+              style={{
+                textTransform: "capitalize",
+                whiteSpace: "nowrap",
+                width: "100%",
+                overflow: "hidden",
+                fontSize: 12,
+                textOverflow: "ellipsis",
+              }}
+            >
+              {product.name}
+            </Typography>
+
+            <div className={classes.my_btns}>
+              <Button
+                className={classes.btn}
+                variant="outlined"
+                color="secondary"
+                size="small"
+              >
+                open
+              </Button>
+
+              <IconButton
+                edge="end"
+                aria-label="delete"
+                onClick={() => deleteFarm()}
+              >
+                <DeleteIcon style={{ color: "red" }} />
+              </IconButton>
+            </div>
+          </div>
+
           <div className={classes.prodDetails}>
             {error ? (
               <>GET error!</>
@@ -351,8 +525,12 @@ const SingleProductBox = ({ product }) => {
                   <>
                     {data ? (
                       <>
-                        <span> Quantity: {data.response.quantity}</span>
-                        <span> Price: {data.response.sold}</span>
+                        <Typography className={classes.items_style}>
+                          <b>Quantity</b>: {data.response.quantity}
+                        </Typography>
+                        <Typography className={classes.items_style}>
+                          <b>Price</b>: {data.response.sold}
+                        </Typography>
                       </>
                     ) : null}
                   </>
@@ -361,11 +539,7 @@ const SingleProductBox = ({ product }) => {
             )}
           </div>
         </div>
-
-        <Button className={classes.btn} variant="contained" color="default">
-          open product
-        </Button>
-      </Paper>
-    </Grid>
+      </div>
+    </div>
   );
 };

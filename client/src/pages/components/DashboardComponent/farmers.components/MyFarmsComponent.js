@@ -1,6 +1,6 @@
 import React from "react";
 import axios from "axios";
-import { makeStyles } from "@material-ui/core/styles";
+import { makeStyles, useTheme } from "@material-ui/core/styles";
 import Button from "@material-ui/core/Button";
 import TextField from "@material-ui/core/TextField";
 import Dialog from "@material-ui/core/Dialog";
@@ -16,10 +16,12 @@ import Divider from "@material-ui/core/Divider";
 import DeleteIcon from "@material-ui/icons/Delete";
 import Badge from "@material-ui/core/Badge";
 import ListItemSecondaryAction from "@material-ui/core/ListItemSecondaryAction";
-
+import PhotoCamera from "@material-ui/icons/PhotoCamera";
 import { InlineLoader } from "../../../../components/IsLoading";
 import SnackBar from "../../../../components/SnackBar";
 import SingleFarm from "./SingleFarm";
+import useMediaQuery from "@material-ui/core/useMediaQuery";
+import InputAdornment from "@material-ui/core/InputAdornment";
 
 import useRequest from "../../../../utils/useRequest";
 import authHeader from "../../../../utils/auth-header";
@@ -42,6 +44,11 @@ const useStyles = makeStyles(theme => ({
   btn: { height: 30, margin: "0 5px" },
   message: { fontSize: 30, textAlign: "center" },
   span: { color: "gray", textAlign: "left", fontSize: 14 },
+  responsive: {
+    [theme.breakpoints.down("sm")]: {
+      display: "none",
+    },
+  },
 }));
 
 function MyFarmsComponent({ user }) {
@@ -57,6 +64,7 @@ function MyFarmsComponent({ user }) {
 
   const [selectedFarmName, setSelectedFarmName] = React.useState("");
   const [selectedFarmId, setSelectedFarmId] = React.useState("");
+  const [selectedFarmPic, setSelectedFarmPic] = React.useState("");
   const [singleFarmOpen, setSingleFarmOpen] = React.useState(false);
 
   const [open, setOpen] = React.useState(false);
@@ -82,15 +90,12 @@ function MyFarmsComponent({ user }) {
   };
 
   const deleteFarm = async farmid => {
-    console.log("farmid", farmid);
-
-    const url = KEYS.API_URL + "/api/farm//delete/single/" + farmid;
+    const url = KEYS.API_URL + "/api/farm/delete/single/" + farmid;
     try {
-      const res = await axios.delete(url, {
+      await axios.delete(url, {
         headers: authHeader(token),
       });
 
-      console.log(res.data);
       refresh();
       setMsg("Farm Has been Deleted Successfully!");
       setMsgType("success");
@@ -98,7 +103,6 @@ function MyFarmsComponent({ user }) {
     } catch (e) {
       if (e.response) {
         if (e.response.data) {
-          console.log(e.response.data);
         }
       }
 
@@ -108,7 +112,8 @@ function MyFarmsComponent({ user }) {
     }
   };
 
-  const openSingleFarm = (farmid, farmName) => {
+  const openSingleFarm = (farmid, farmName, farmPic) => {
+    setSelectedFarmPic(farmPic);
     setSelectedFarmId(farmid);
     setSelectedFarmName(farmName);
     setSingleFarmOpen(true);
@@ -129,6 +134,7 @@ function MyFarmsComponent({ user }) {
         <SingleFarm
           farmId={selectedFarmId}
           farmName={selectedFarmName}
+          farmPic={selectedFarmPic}
           handleClose={() => setSingleFarmOpen(false)}
           token={token}
         />
@@ -186,12 +192,12 @@ const DisplayData = ({
   openSingleFarm,
 }) => {
   const classes = useStyles();
+  const theme = useTheme();
+  const matches = useMediaQuery(theme.breakpoints.down("sm"));
 
   if (isValidating) return <InlineLoader />;
   if (error) return <div>An Error Occured!</div>;
   if (data) {
-    console.log(55555, data);
-
     if (data.response) {
       if (!data.response.length) {
         return (
@@ -204,37 +210,43 @@ const DisplayData = ({
           <div className={classes.message}>
             <span className={classes.span}>Click on an item to open farm</span>
             <List dense={true}>
-              {data.response.map(farm => (
-                <React.Fragment key={Math.random()}>
-                  <ListItem
-                    button
-                    onClick={() => openSingleFarm(farm._id, farm.name)}
-                  >
-                    <ListItemText
-                      primary={"Farm Name"}
-                      secondary={farm.name.toUpperCase()}
-                    />
-                    <ListItemText
-                      primary={"Latitude"}
-                      secondary={farm.latitude}
-                    />
-                    <ListItemText
-                      primary={"Longitude"}
-                      secondary={farm.longitude}
-                    />
-                    <ListItemSecondaryAction>
-                      <IconButton
-                        edge="end"
-                        aria-label="delete"
-                        onClick={() => deleteFarm(farm._id)}
-                      >
-                        <DeleteIcon style={{ color: "red" }} />
-                      </IconButton>
-                    </ListItemSecondaryAction>
-                  </ListItem>
-                  <Divider />
-                </React.Fragment>
-              ))}
+              {data.response.map(farm => {
+                return (
+                  <React.Fragment key={Math.random()}>
+                    <ListItem
+                      button
+                      onClick={() =>
+                        openSingleFarm(farm._id, farm.name, farm.pic)
+                      }
+                    >
+                      <ListItemText
+                        primary={"Farm Name"}
+                        secondary={farm.name.toUpperCase()}
+                      />
+                      <ListItemText
+                        primary={"Latitude"}
+                        secondary={farm.latitude}
+                        hidden={matches}
+                      />
+                      <ListItemText
+                        hidden={matches}
+                        primary={"Longitude"}
+                        secondary={farm.longitude}
+                      />
+                      <ListItemSecondaryAction>
+                        <IconButton
+                          edge="end"
+                          aria-label="delete"
+                          onClick={() => deleteFarm(farm._id)}
+                        >
+                          <DeleteIcon style={{ color: "red" }} />
+                        </IconButton>
+                      </ListItemSecondaryAction>
+                    </ListItem>
+                    <Divider />
+                  </React.Fragment>
+                );
+              })}
             </List>
           </div>
         );
@@ -258,26 +270,40 @@ const AddNewFarmDialog = ({
   setSnackBarOpen,
 }) => {
   const [name, setName] = React.useState("");
+  const [file, setFile] = React.useState(null);
+
+  const onChangeFile = e => {
+    if (e.target.files[0]) {
+      const type = e.target.files[0].type;
+      if (type !== "image/png" && type !== "image/jpeg" && type !== "image/jpg")
+        return alert("Invalid Image file sected!");
+      setFile(e.target.files[0]);
+    }
+  };
 
   const createNewFarm = async () => {
-    console.log(name);
     if (!name.trim()) return;
 
     const url = KEYS.API_URL + "/api/farm/add";
-    console.log(authHeader(token));
+
+    const formData = new FormData();
+    formData.append("image", file);
+    formData.append(
+      "data",
+      JSON.stringify({
+        name,
+        userId,
+        latitude: Math.random(),
+        longitude: Math.random(),
+        pic: "NIL",
+      })
+    );
+
     try {
-      const res = await axios.post(
-        url,
-        {
-          name,
-          userId,
-          latitude: Math.random(),
-          longitude: Math.random(),
-          pic: "NIL",
-        },
-        { headers: authHeader(token) }
-      );
-      console.log(res.data);
+      await axios.post(url, formData, {
+        headers: authHeader(token),
+        "Content-Type": "multipart/form-data",
+      });
       refresh();
       handleClose();
       setMsg("New Farm Has been Created Successfully!");
@@ -287,11 +313,8 @@ const AddNewFarmDialog = ({
     } catch (e) {
       if (e.response) {
         if (e.response.data) {
-          console.log(e.response.data);
         }
       }
-
-      console.log(e);
 
       setMsg("An Error Occured!");
       setMsgType("error");
@@ -318,10 +341,25 @@ const AddNewFarmDialog = ({
             margin="dense"
             id="name"
             label="Farm Name"
-            type="email"
+            type=""
             value={name}
             fullWidth
             onChange={e => setName(e.target.value)}
+          />
+
+          <TextField
+            label="Farm Image"
+            type="file"
+            fullWidth
+            onChange={e => onChangeFile(e)}
+            inputProps={{
+              accept: "image/jpg, image/jpeg, image/png",
+              endadornment: (
+                <InputAdornment position="end">
+                  <PhotoCamera />
+                </InputAdornment>
+              ),
+            }}
           />
         </DialogContent>
         <DialogActions>

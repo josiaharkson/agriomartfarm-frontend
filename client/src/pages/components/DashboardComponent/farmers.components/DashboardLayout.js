@@ -1,4 +1,5 @@
 import React from "react";
+import clsx from "clsx";
 import PropTypes from "prop-types";
 import AppBar from "@material-ui/core/AppBar";
 import Divider from "@material-ui/core/Divider";
@@ -49,6 +50,11 @@ const useStyles = makeStyles(theme => ({
   },
   // necessary for content to be below app bar
   toolbarX: theme.mixins.toolbar,
+  toolbarXResponsive: {
+    [theme.breakpoints.down("sm")]: {
+      display: "none",
+    },
+  },
   drawerPaper: {
     width: drawerWidth,
   },
@@ -232,7 +238,7 @@ function DashboardWrapper(props) {
         </Hidden>
       </nav>
       <main className={classes.content}>
-        <div className={classes.toolbarX} />
+        <div className={clsx(classes.toolbarX, classes.toolbarXResponsive)} />
         {props.children}
       </main>
     </div>
