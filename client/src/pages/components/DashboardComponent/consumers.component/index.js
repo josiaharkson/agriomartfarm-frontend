@@ -46,7 +46,11 @@ const useStyles = makeStyles(theme => ({
     width: "70%",
     marginTop: 50,
     [theme.breakpoints.down("sm")]: {
-      marginTop: 80,
+    width: "90%",
+    whiteSpace: "nowrap",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    marginTop: 80,
     },
   },
 }));
