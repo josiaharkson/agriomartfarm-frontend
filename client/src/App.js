@@ -1,6 +1,6 @@
 import React, { Suspense } from "react";
 import { connect } from "react-redux";
-
+import axios from "axios";
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import IsLoading from "./components/IsLoading";
 
@@ -15,11 +15,27 @@ function LoadPageComponent(name) {
   const Component = React.lazy(() => import(`./pages/${name}`));
   return Component;
 }
-console.log(process.env);
+ ;
 
 function App(props) {
   const [loadingUser, setLoadingUser] = React.useState(true);
 
+  
+  const wakeAPI = async () => {
+    try {
+      const res = await axios.get(
+        "https://agro-mart10.herokuapp.com/api/farm/get/5f69aa672923a47340ccdd98"
+      );
+
+      console.log(res.data);
+    } catch (e) {}
+  };
+  wakeAPI();
+
+  React.useEffect(() => {
+    wakeAPI();
+  });
+  
   React.useEffect(() => {
     const user = getCurrentUser();
     if (user) {
