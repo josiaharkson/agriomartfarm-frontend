@@ -1,8 +1,8 @@
-# Healthlance App
+# Agromart Frontend
 
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/147b75a9f218469abf70c17768cc3ea3)](https://www.codacy.com/gh/josiaharkson/healthlance/dashboard?utm_source=github.com&utm_medium=referral&utm_content=josiaharkson/healthlance&utm_campaign=Badge_Grade)
 
-> A web application designed to help individuals cut down or stop the abuse of drugs, alcohol, and other addictive (psychoactive) substances
+> An online marketplace connecting farm owners, retailers and consumers. Ease sales and purchase of farm products online.
 
 ## Pre-Requisites
 
@@ -17,8 +17,6 @@
 
 - Server - Node.js (Next.js / Express)
 - Frontend - (React.js), Material UI, Redux, Axios, Swr
-- API - Next.js API Routing (REST)
-- Storage - MongoDB
 - Vercel For Hosting.
 
 ## Author
